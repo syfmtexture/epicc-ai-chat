@@ -33,6 +33,10 @@ fun MainScreen(
             return false // Let WebView load the URL directly
           }
         }
+
+        // Configure CookieManager for cookie persistence
+        android.webkit.CookieManager.getInstance().setAcceptCookie(true)
+        android.webkit.CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
         
         // Enable popup support for Google OAuth
         webChromeClient = object : WebChromeClient() {
@@ -49,6 +53,8 @@ fun MainScreen(
                   return false
                 }
               }
+              // Enable cookies for the popup WebView
+              android.webkit.CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
               settings.apply {
                 javaScriptEnabled = true
                 domStorageEnabled = true
