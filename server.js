@@ -6,16 +6,135 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ─── Security Headers ────────────────────────────────────────────────────────
+app.use((req, res, next) => {
+  // Prevent clickjacking
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  // XSS protection
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  // Prevent MIME type sniffing
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  // Referrer policy
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  // Permissions policy (restrict camera, microphone, geolocation)
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  // HSTS (enforce HTTPS for 1 year)
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  // Content Security Policy
+  res.setHeader('Content-Security-Policy', [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+    "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
+    "img-src 'self' data: https: blob:",
+    "connect-src 'self' https://generativelanguage.googleapis.com https://api.groq.com https://api.siliconflow.cn https://www.googleapis.com https://accounts.google.com",
+    "frame-src https://accounts.google.com"
+  ].join('; '));
+  next();
+});
+
+// ─── Rate Limiting (in-memory, no external dependencies) ─────────────────────
+const rateLimitMap = new Map();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX = 30;              // 30 requests per minute per IP
+
+function rateLimit(req, res, next) {
+  const ip = req.ip || req.connection.remoteAddress || 'unknown';
+  const now = Date.now();
+
+  if (!rateLimitMap.has(ip)) {
+    rateLimitMap.set(ip, { count: 1, startTime: now });
+    return next();
+  }
+
+  const entry = rateLimitMap.get(ip);
+  if (now - entry.startTime > RATE_LIMIT_WINDOW_MS) {
+    // Reset window
+    entry.count = 1;
+    entry.startTime = now;
+    return next();
+  }
+
+  entry.count++;
+  if (entry.count > RATE_LIMIT_MAX) {
+    return res.status(429).json({ error: 'Too many requests. Please wait a moment and try again.' });
+  }
+  next();
+}
+
+// Clean up stale rate limit entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of rateLimitMap) {
+    if (now - entry.startTime > RATE_LIMIT_WINDOW_MS * 2) {
+      rateLimitMap.delete(ip);
+    }
+  }
+}, 5 * 60 * 1000);
+
 app.use(cors());
-app.use(express.json({ limit: '5mb' }));
+app.use(express.json({ limit: '1mb' })); // Reduced from 5mb for safety
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Apply rate limiting to API routes
+app.use('/api/', rateLimit);
 
 // ─── Unified Chat Streaming Endpoint ────────────────────────────────────────
 app.post('/api/chat', async (req, res) => {
   const { provider, model, messages, apiKey, temperature, maxTokens, systemPrompt, thinkingLevel } = req.body;
 
+  // ── Input Validation ──────────────────────────────────────────────────
   if (!provider || !model || !messages) {
     return res.status(400).json({ error: 'Missing required fields: provider, model, messages' });
+  }
+
+  // Whitelist providers
+  const ALLOWED_PROVIDERS = ['google', 'groq', 'siliconflow'];
+  if (!ALLOWED_PROVIDERS.includes(provider)) {
+    return res.status(400).json({ error: 'Invalid provider.' });
+  }
+
+  // Validate model name (alphanumeric, slashes, dashes, dots, underscores only)
+  if (typeof model !== 'string' || !/^[a-zA-Z0-9\/\-._]+$/.test(model)) {
+    return res.status(400).json({ error: 'Invalid model name.' });
+  }
+
+  // Validate messages is an array with reasonable limits
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return res.status(400).json({ error: 'Messages must be a non-empty array.' });
+  }
+  if (messages.length > 200) {
+    return res.status(400).json({ error: 'Too many messages in conversation (max 200).' });
+  }
+
+  // Validate each message
+  for (const msg of messages) {
+    if (!msg.role || !msg.content || typeof msg.content !== 'string') {
+      return res.status(400).json({ error: 'Each message must have a role and content string.' });
+    }
+    if (!['user', 'assistant', 'system'].includes(msg.role)) {
+      return res.status(400).json({ error: 'Invalid message role.' });
+    }
+    if (msg.content.length > 100000) {
+      return res.status(400).json({ error: 'Message content too long (max 100,000 characters).' });
+    }
+  }
+
+  // Validate optional parameters
+  if (temperature !== undefined && temperature !== null) {
+    const temp = Number(temperature);
+    if (isNaN(temp) || temp < 0 || temp > 2) {
+      return res.status(400).json({ error: 'Temperature must be between 0 and 2.' });
+    }
+  }
+  if (maxTokens !== undefined && maxTokens !== null) {
+    const mt = Number(maxTokens);
+    if (isNaN(mt) || mt < 1 || mt > 131072) {
+      return res.status(400).json({ error: 'maxTokens must be between 1 and 131072.' });
+    }
+  }
+  if (systemPrompt && typeof systemPrompt === 'string' && systemPrompt.length > 10000) {
+    return res.status(400).json({ error: 'System prompt too long (max 10,000 characters).' });
   }
 
   // Resolve API key: client-provided key takes priority over server .env
@@ -36,12 +155,21 @@ app.post('/api/chat', async (req, res) => {
   res.flushHeaders();
 
   try {
+    // Inject the current date/time to prevent models from getting the date wrong
+    const dateStr = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    const enhancedSystemPrompt = `Current Date: ${dateStr}\n\n` + (systemPrompt || '');
+
     if (provider === 'google') {
-      await streamGemini(res, resolvedKey, model, messages, temperature, maxTokens, systemPrompt, thinkingLevel);
+      await streamGemini(res, resolvedKey, model, messages, temperature, maxTokens, enhancedSystemPrompt, thinkingLevel);
     } else if (provider === 'groq') {
-      await streamGroq(res, resolvedKey, model, messages, temperature, maxTokens, systemPrompt, thinkingLevel);
+      await streamGroq(res, resolvedKey, model, messages, temperature, maxTokens, enhancedSystemPrompt, thinkingLevel);
     } else if (provider === 'siliconflow') {
-      await streamSiliconFlow(res, resolvedKey, model, messages, temperature, maxTokens, systemPrompt, thinkingLevel);
+      await streamSiliconFlow(res, resolvedKey, model, messages, temperature, maxTokens, enhancedSystemPrompt, thinkingLevel);
     } else {
       res.write(`data: ${JSON.stringify({ error: `Unknown provider: ${provider}` })}\n\n`);
       res.write('data: [DONE]\n\n');

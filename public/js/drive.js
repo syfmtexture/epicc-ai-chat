@@ -92,6 +92,12 @@ window.DriveSync = (() => {
    * Trigger the Google Sign-In popup.
    */
   function signIn() {
+    if (typeof EpiccBridge !== 'undefined' && EpiccBridge.googleSignIn) {
+      setSyncStatus('syncing', 'Connecting natively...');
+      EpiccBridge.googleSignIn(savedClientId || '');
+      return;
+    }
+
     if (!tokenClient) {
       if (savedClientId && typeof google !== 'undefined' && google.accounts && google.accounts.oauth2) {
         try {
@@ -355,6 +361,38 @@ window.DriveSync = (() => {
     if (onSyncStatusChange) onSyncStatusChange(state, text);
   }
 
+  /**
+   * Called by native Android bridge on successful sign in
+   */
+  async function onNativeSignInSuccess(token, email, name, picture) {
+    accessToken = token;
+    userInfo = {
+      email: email || '',
+      name: name || 'User',
+      picture: picture || ''
+    };
+    hasDriveScope = true; // Native flow grants requested scopes
+
+    // Save session to localStorage
+    localStorage.setItem('drive_access_token', accessToken);
+    localStorage.setItem('drive_user_info', JSON.stringify(userInfo));
+    localStorage.setItem('drive_has_drive_scope', 'true');
+    localStorage.setItem('drive_token_expiry', (Date.now() + 3600 * 1000).toString());
+
+    if (onSignIn) {
+      await onSignIn(userInfo);
+    }
+    setSyncStatus('synced', 'Connected (Mobile)');
+  }
+
+  /**
+   * Called by native Android bridge on sign in error
+   */
+  function onNativeSignInError(errMessage) {
+    console.error('[DriveSync] Native auth error:', errMessage);
+    setSyncStatus('error', errMessage || 'Native sign-in failed');
+  }
+
   return {
     init,
     signIn,
@@ -363,7 +401,9 @@ window.DriveSync = (() => {
     hasDrivePermission,
     getUserInfo,
     saveData,
-    loadData
+    loadData,
+    onNativeSignInSuccess,
+    onNativeSignInError
   };
 
 })();

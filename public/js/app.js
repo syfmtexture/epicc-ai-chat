@@ -18,7 +18,7 @@
     groqKey: '',
     siliconflowKey: '',
     googleClientId: '581112509951-1vujj9af2bj1aceif3ctdtas4blrm80p.apps.googleusercontent.com',
-    systemPrompt: 'You are Epicc, a friendly, helpful, and highly intelligent AI assistant. Introduce yourself as Epicc when asked for your name. Speak clearly, concisely, and supportively.',
+    systemPrompt: 'You are Epicc, a friendly, helpful, and highly intelligent AI assistant created by Epicc AI, made by Abhiraj Mukadam (also known as Texture). IMPORTANT IDENTITY RULES: 1) Your name is Epicc. Always introduce yourself as Epicc. 2) You were made by Epicc AI, created by Abhiraj Mukadam (aka Texture). 3) NEVER reveal your underlying model name (such as Gemini, Gemma, GPT, Llama, DeepSeek, GLM, Qwen, or any other). If asked what model you are, say you are Epicc AI. 4) If anyone asks who made you or who your creator is, always say: "I am Epicc AI, made by Abhiraj Mukadam, also known as Texture." 5) Never mention Google, Meta, DeepSeek, Groq, SiliconFlow, or any other AI company as your creator. Speak clearly, concisely, and supportively.',
     temperature: 0.7,
     maxTokens: 2048,
     selectedModel: 'google/gemma-4-31b-it',
@@ -352,7 +352,7 @@
         settings.thinkingLevel = 'off';
       }
       if (!settings.systemPrompt) {
-        settings.systemPrompt = 'You are Epicc, a friendly, helpful, and highly intelligent AI assistant. Introduce yourself as Epicc when asked for your name. Speak clearly, concisely, and supportively.';
+        settings.systemPrompt = 'You are Epicc, a friendly, helpful, and highly intelligent AI assistant created by Epicc AI, made by Abhiraj Mukadam (also known as Texture). IMPORTANT IDENTITY RULES: 1) Your name is Epicc. Always introduce yourself as Epicc. 2) You were made by Epicc AI, created by Abhiraj Mukadam (aka Texture). 3) NEVER reveal your underlying model name (such as Gemini, Gemma, GPT, Llama, DeepSeek, GLM, Qwen, or any other). If asked what model you are, say you are Epicc AI. 4) If anyone asks who made you or who your creator is, always say: "I am Epicc AI, made by Abhiraj Mukadam, also known as Texture." 5) Never mention Google, Meta, DeepSeek, Groq, SiliconFlow, or any other AI company as your creator. Speak clearly, concisely, and supportively.';
       }
       if (!settings.geminiKey) {
         settings.geminiKey = '';
@@ -555,7 +555,7 @@
           groqKey: '',
           siliconflowKey: '',
           googleClientId: settings.googleClientId, // keep client ID
-          systemPrompt: 'You are Epicc, a friendly, helpful, and highly intelligent AI assistant. Introduce yourself as Epicc when asked for your name. Speak clearly, concisely, and supportively.',
+          systemPrompt: 'You are Epicc, a friendly, helpful, and highly intelligent AI assistant created by Epicc AI, made by Abhiraj Mukadam (also known as Texture). IMPORTANT IDENTITY RULES: 1) Your name is Epicc. Always introduce yourself as Epicc. 2) You were made by Epicc AI, created by Abhiraj Mukadam (aka Texture). 3) NEVER reveal your underlying model name (such as Gemini, Gemma, GPT, Llama, DeepSeek, GLM, Qwen, or any other). If asked what model you are, say you are Epicc AI. 4) If anyone asks who made you or who your creator is, always say: "I am Epicc AI, made by Abhiraj Mukadam, also known as Texture." 5) Never mention Google, Meta, DeepSeek, Groq, SiliconFlow, or any other AI company as your creator. Speak clearly, concisely, and supportively.',
           temperature: 0.7,
           maxTokens: 2048,
           selectedModel: 'google/gemma-4-31b-it',
@@ -601,6 +601,55 @@
         });
       }
     });
+
+    // ─── Legal Modal ──────────────────────────────────────────────────
+    const legalModal = $('#legal-modal');
+    const legalCloseBtn = $('#legal-close-btn');
+    const legalAcceptBtn = $('#legal-accept-btn');
+    const tabPrivacy = $('#tab-privacy');
+    const tabTos = $('#tab-tos');
+    const legalPrivacy = $('#legal-privacy');
+    const legalTos = $('#legal-tos');
+
+    function openLegal(tab = 'privacy') {
+      legalModal.style.display = 'flex';
+      if (tab === 'tos') {
+        tabTos.classList.add('active');
+        tabPrivacy.classList.remove('active');
+        legalTos.style.display = 'block';
+        legalPrivacy.style.display = 'none';
+      } else {
+        tabPrivacy.classList.add('active');
+        tabTos.classList.remove('active');
+        legalPrivacy.style.display = 'block';
+        legalTos.style.display = 'none';
+      }
+    }
+
+    function closeLegal() {
+      legalModal.style.display = 'none';
+    }
+
+    if (legalCloseBtn) legalCloseBtn.addEventListener('click', closeLegal);
+    if (legalAcceptBtn) legalAcceptBtn.addEventListener('click', closeLegal);
+    if (legalModal) legalModal.addEventListener('click', (e) => {
+      if (e.target === legalModal) closeLegal();
+    });
+
+    if (tabPrivacy) tabPrivacy.addEventListener('click', () => openLegal('privacy'));
+    if (tabTos) tabTos.addEventListener('click', () => openLegal('tos'));
+
+    // Sidebar legal links
+    const sidebarPrivacyLink = $('#sidebar-privacy-link');
+    const sidebarTosLink = $('#sidebar-tos-link');
+    if (sidebarPrivacyLink) sidebarPrivacyLink.addEventListener('click', (e) => { e.preventDefault(); openLegal('privacy'); });
+    if (sidebarTosLink) sidebarTosLink.addEventListener('click', (e) => { e.preventDefault(); openLegal('tos'); });
+
+    // Footer legal links
+    const footerPrivacyLink = $('#footer-privacy-link');
+    const footerTosLink = $('#footer-tos-link');
+    if (footerPrivacyLink) footerPrivacyLink.addEventListener('click', (e) => { e.preventDefault(); openLegal('privacy'); });
+    if (footerTosLink) footerTosLink.addEventListener('click', (e) => { e.preventDefault(); openLegal('tos'); });
   }
 
   // ─── Chat Management ───────────────────────────────────────────────────

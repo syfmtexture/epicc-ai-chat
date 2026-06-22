@@ -72,6 +72,13 @@
         <span>Sign in with Google</span>
       </button>
 
+      <!-- Legal Links -->
+      <div class="sidebar-legal-links">
+        <a href="#" id="sidebar-privacy-link" class="legal-link">Privacy Policy</a>
+        <span class="legal-separator">·</span>
+        <a href="#" id="sidebar-tos-link" class="legal-link">Terms of Service</a>
+      </div>
+
       <!-- Settings Button -->
       <button id="settings-btn" class="settings-btn" style="display:none !important;">
         <i class="fa-solid fa-gear"></i>
@@ -167,6 +174,11 @@
       </div>
       <div class="input-footer">
         <span class="input-footer-text">Epicc can make mistakes. Verify important info.</span>
+        <span class="input-footer-legal">
+          <a href="#" id="footer-privacy-link" class="legal-link-inline">Privacy</a>
+          <span class="legal-separator-inline">·</span>
+          <a href="#" id="footer-tos-link" class="legal-link-inline">Terms</a>
+        </span>
       </div>
     </div>
 
@@ -267,6 +279,124 @@
       <div class="modal-footer">
         <button id="rename-cancel-btn" class="ghost-btn">Cancel</button>
         <button id="rename-save-btn" class="primary-btn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- LEGAL MODAL (Privacy Policy & Terms of Service) -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div id="legal-modal" class="modal-overlay" style="display:none;">
+    <div class="modal modal-legal">
+      <div class="modal-header">
+        <div class="legal-tabs">
+          <button id="tab-privacy" class="legal-tab active" data-tab="privacy">
+            <i class="fa-solid fa-shield-halved"></i> Privacy Policy
+          </button>
+          <button id="tab-tos" class="legal-tab" data-tab="tos">
+            <i class="fa-solid fa-file-contract"></i> Terms of Service
+          </button>
+        </div>
+        <button id="legal-close-btn" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Privacy Policy Content -->
+        <div id="legal-privacy" class="legal-content">
+          <p class="legal-updated">Last updated: June 22, 2026</p>
+
+          <h3>1. Introduction</h3>
+          <p>Epicc AI ("we", "us", or "our") is a product created by <strong>Abhiraj Mukadam (aka Texture)</strong>. This Privacy Policy explains how we collect, use, and protect your information when you use the Epicc AI application ("App").</p>
+
+          <h3>2. Information We Collect</h3>
+          <p><strong>We collect minimal data.</strong> Epicc AI is designed with privacy first:</p>
+          <ul>
+            <li><strong>Chat Messages:</strong> All chat conversations are stored <em>locally on your device</em> using browser localStorage. We do not have access to your messages on our servers.</li>
+            <li><strong>API Keys:</strong> If you provide API keys (Google AI Studio, Groq, SiliconFlow), they are stored locally on your device and transmitted only to the respective API providers. We never store or log your API keys on our servers.</li>
+            <li><strong>Google Account Data:</strong> If you sign in with Google, we access your name, email, and profile picture solely to display them in the App. This data stays on your device.</li>
+            <li><strong>Google Drive Sync:</strong> If enabled, your chat data is synced to your private Google Drive appDataFolder. Only you can access this data.</li>
+          </ul>
+
+          <h3>3. How We Use Your Information</h3>
+          <ul>
+            <li>To provide AI-powered chat responses by forwarding your messages to third-party AI API providers (Google, Groq, SiliconFlow).</li>
+            <li>To personalize your experience (display name, profile picture).</li>
+            <li>To sync data across devices if you opt into Google Drive sync.</li>
+          </ul>
+
+          <h3>4. Data Storage & Security</h3>
+          <ul>
+            <li>All personal data (chats, settings, API keys) is stored <strong>locally on your device</strong>.</li>
+            <li>Our server acts only as a proxy to forward API requests — no user data is stored server-side.</li>
+            <li>All communications use HTTPS encryption.</li>
+            <li>API keys are transmitted directly to their respective providers using secure connections.</li>
+            <li>We implement security headers (Content Security Policy, XSS Protection, etc.) to protect against common web attacks.</li>
+          </ul>
+
+          <h3>5. Third-Party Services</h3>
+          <p>Messages you send are processed by third-party AI providers based on your chosen model. Their respective privacy policies apply:</p>
+          <ul>
+            <li>Google AI (Gemini/Gemma): <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a></li>
+            <li>Groq: <a href="https://groq.com/privacy-policy/" target="_blank" rel="noopener">Groq Privacy Policy</a></li>
+            <li>SiliconFlow: <a href="https://siliconflow.cn/privacy" target="_blank" rel="noopener">SiliconFlow Privacy Policy</a></li>
+          </ul>
+
+          <h3>6. Data Retention & Deletion</h3>
+          <p>You can delete all your data at any time by using the "Clear All Local Data" option in Settings. This permanently removes all locally stored chats, settings, and API keys. For Google Drive data, you can revoke access through your Google Account settings.</p>
+
+          <h3>7. Children's Privacy</h3>
+          <p>Epicc AI is not intended for users under the age of 13. We do not knowingly collect data from children.</p>
+
+          <h3>8. Changes to This Policy</h3>
+          <p>We may update this Privacy Policy from time to time. Continued use of the App constitutes acceptance of the updated policy.</p>
+
+          <h3>9. Contact</h3>
+          <p>For privacy inquiries, contact <strong>Abhiraj Mukadam</strong> (Texture) — the creator of Epicc AI.</p>
+        </div>
+
+        <!-- Terms of Service Content -->
+        <div id="legal-tos" class="legal-content" style="display:none;">
+          <p class="legal-updated">Last updated: June 22, 2026</p>
+
+          <h3>1. Acceptance of Terms</h3>
+          <p>By using Epicc AI ("App"), you agree to these Terms of Service. If you do not agree, please discontinue use immediately.</p>
+
+          <h3>2. Description of Service</h3>
+          <p>Epicc AI is a multi-model AI chat client created by <strong>Abhiraj Mukadam (aka Texture)</strong>. It provides a unified interface to interact with various AI models via third-party API providers.</p>
+
+          <h3>3. User Responsibilities</h3>
+          <ul>
+            <li>You are responsible for maintaining the confidentiality of your API keys.</li>
+            <li>You agree not to use the App for illegal, harmful, or abusive purposes.</li>
+            <li>You are responsible for all content you generate or submit through the App.</li>
+            <li>You agree not to attempt to reverse-engineer, hack, or compromise the App's security.</li>
+          </ul>
+
+          <h3>4. API Usage & Costs</h3>
+          <p>Epicc AI connects to third-party AI providers using API keys you provide. Any costs incurred through API usage are your responsibility. We are not liable for charges from Google, Groq, SiliconFlow, or other providers.</p>
+
+          <h3>5. Intellectual Property</h3>
+          <p>The Epicc AI brand, name, logo, and interface design are the property of Abhiraj Mukadam (Texture). AI-generated content belongs to the user who generated it, subject to the terms of the underlying AI provider.</p>
+
+          <h3>6. Disclaimer of Warranties</h3>
+          <p>Epicc AI is provided "AS IS" without warranties of any kind. We do not guarantee the accuracy, reliability, or completeness of AI-generated responses. Always verify important information independently.</p>
+
+          <h3>7. Limitation of Liability</h3>
+          <p>To the fullest extent permitted by law, Epicc AI and its creator shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the App.</p>
+
+          <h3>8. Termination</h3>
+          <p>We reserve the right to suspend or terminate access to the App at any time, for any reason, without notice.</p>
+
+          <h3>9. Governing Law</h3>
+          <p>These Terms shall be governed by the laws applicable in the jurisdiction of the creator's residence.</p>
+
+          <h3>10. Contact</h3>
+          <p>For questions about these Terms, contact <strong>Abhiraj Mukadam</strong> (Texture) — the creator of Epicc AI.</p>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button id="legal-accept-btn" class="primary-btn">I Understand</button>
       </div>
     </div>
   </div>
