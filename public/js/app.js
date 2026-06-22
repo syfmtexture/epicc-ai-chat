@@ -18,11 +18,11 @@
     groqKey: '',
     siliconflowKey: '',
     googleClientId: '581112509951-1vujj9af2bj1aceif3ctdtas4blrm80p.apps.googleusercontent.com',
-    systemPrompt: '',
+    systemPrompt: 'You are Epicc, a friendly, helpful, and highly intelligent AI assistant. Introduce yourself as Epicc when asked for your name. Speak clearly, concisely, and supportively.',
     temperature: 0.7,
     maxTokens: 2048,
-    selectedModel: 'google/gemini-3.5-flash',
-    thinkingLevel: 'high'
+    selectedModel: 'google/gemma-4-31b-it',
+    thinkingLevel: 'off'
   };
 
   // ─── DOM References ────────────────────────────────────────────────────
@@ -349,7 +349,10 @@
       
       // Ensure default values for new settings keys or migrate problematic values
       if (!settings.thinkingLevel) {
-        settings.thinkingLevel = 'high';
+        settings.thinkingLevel = 'off';
+      }
+      if (!settings.systemPrompt) {
+        settings.systemPrompt = 'You are Epicc, a friendly, helpful, and highly intelligent AI assistant. Introduce yourself as Epicc when asked for your name. Speak clearly, concisely, and supportively.';
       }
       if (!settings.geminiKey) {
         settings.geminiKey = '';
@@ -550,12 +553,13 @@
         settings = {
           geminiKey: '',
           groqKey: '',
-          siliconflowKey: 'sk-xpgnarxttjcfokxnzubazlhpaxnsgtnmqijouwjvgcfdtwcs',
+          siliconflowKey: '',
           googleClientId: settings.googleClientId, // keep client ID
-          systemPrompt: '',
+          systemPrompt: 'You are Epicc, a friendly, helpful, and highly intelligent AI assistant. Introduce yourself as Epicc when asked for your name. Speak clearly, concisely, and supportively.',
           temperature: 0.7,
-          maxTokens: 8192,
-          selectedModel: 'google/gemini-3.5-flash'
+          maxTokens: 2048,
+          selectedModel: 'google/gemma-4-31b-it',
+          thinkingLevel: 'off'
         };
         saveToLocalStorage();
         renderChatHistory();
