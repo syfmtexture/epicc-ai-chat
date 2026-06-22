@@ -74,6 +74,15 @@ async function streamGemini(res, apiKey, model, messages, temperature, maxTokens
     generationConfig: {}
   };
 
+  // Enable Google Search grounding for Gemini models
+  if (model.includes('gemini')) {
+    body.tools = [
+      {
+        googleSearch: {}
+      }
+    ];
+  }
+
   // Enable thinking config for Gemini models supporting it
   if (model.includes('gemini-3.')) {
     body.generationConfig.thinkingConfig = {
