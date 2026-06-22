@@ -1083,6 +1083,15 @@ input, textarea, select {
   transform: translateX(-50%) translateY(0);
 }
 
+/* Ensure copy button tooltip doesn't clip on the left edge of screens */
+.copy-btn[data-tooltip]::before {
+  left: 0;
+  transform: translateY(4px);
+}
+.copy-btn[data-tooltip]:hover::before {
+  transform: translateY(0);
+}
+
 /* Make actions always partially visible on touch devices/mobile */
 @media (max-width: 768px) {
   .message-actions {

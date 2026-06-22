@@ -113,29 +113,21 @@
     // 2. Math / Logical reasoning keywords
     const isLogical = /\b(calculate|equation|math|algebra|geometry|calculus|proof|probability|statistics|solve|logic|deduct|reasoning|analyse|matrix|vector)\b/.test(text);
 
-    if (hasSiliconFlow) {
+    const isHeavy = isCoding || isLogical;
+
+    // Use SiliconFlow only for heavy tasks if available
+    if (hasSiliconFlow && isHeavy) {
       if (thinkingEnabled) {
-        if (isCoding || isLogical) {
-          return { provider: 'siliconflow', model: 'siliconflow/deepseek-ai/DeepSeek-V4-Pro' };
-        } else {
-          return { provider: 'siliconflow', model: 'siliconflow/deepseek-ai/DeepSeek-V3' };
-        }
+        return { provider: 'siliconflow', model: 'siliconflow/deepseek-ai/DeepSeek-V4-Pro' };
       } else {
-        if (isCoding) {
-          return { provider: 'siliconflow', model: 'siliconflow/zai-org/GLM-5.2' };
-        } else {
-          return { provider: 'siliconflow', model: 'siliconflow/deepseek-ai/DeepSeek-V4-Flash' };
-        }
+        return { provider: 'siliconflow', model: 'siliconflow/zai-org/GLM-5.2' };
       }
     }
 
+    // Default to Gemini / Groq for normal tasks
     if (hasGemini && hasGroq) {
       if (thinkingEnabled) {
-        if (isCoding || isLogical) {
-          return { provider: 'google', model: 'google/gemini-3.5-flash' };
-        } else {
-          return { provider: 'google', model: 'google/gemini-3.5-flash' };
-        }
+        return { provider: 'google', model: 'google/gemini-3.5-flash' };
       } else {
         if (isCoding) {
           return { provider: 'groq', model: 'groq/llama-3.3-70b-versatile' };
@@ -154,6 +146,13 @@
         return { provider: 'groq', model: 'groq/llama-3.3-70b-versatile' };
       } else {
         return { provider: 'groq', model: 'groq/llama-3.1-8b-instant' };
+      }
+    } else if (hasSiliconFlow) {
+      // Fallback to SiliconFlow if nothing else is available (even for light tasks)
+      if (thinkingEnabled) {
+        return { provider: 'siliconflow', model: 'siliconflow/deepseek-ai/DeepSeek-V3' };
+      } else {
+        return { provider: 'siliconflow', model: 'siliconflow/deepseek-ai/DeepSeek-V4-Flash' };
       }
     } else {
       return { provider: 'google', model: 'google/gemini-3.5-flash' };
