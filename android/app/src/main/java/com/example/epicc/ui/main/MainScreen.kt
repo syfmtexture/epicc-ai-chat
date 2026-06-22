@@ -38,6 +38,6 @@ fun MainScreen(
         loadUrl("https://epicc-ai-chat.onrender.com")
       }
     },
-    modifier = Modifier.fillMaxSize()
+    modifier = modifier.fillMaxSize()
   )
 }
