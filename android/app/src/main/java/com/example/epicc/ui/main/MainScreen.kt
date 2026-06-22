@@ -109,9 +109,17 @@ fun MainScreen(
       }.start()
     } catch (e: ApiException) {
       e.printStackTrace()
-      val errMsg = e.message ?: "Google Sign-In failed"
+      val statusCode = e.statusCode
+      val friendlyMsg = when (statusCode) {
+        10 -> "Developer Error (10): Ensure SHA-1 fingerprint (44:1A:1B:40:C8:A3:67:D6:62:89:82:2A:37:6F:B6:9F:11:99:68:73) is registered in Google Cloud Console, and Web Client ID is correct."
+        7 -> "Network Error: Check your device internet connection."
+        12500 -> "Configuration Mismatch (12500): Check your Client ID configuration in Google Cloud."
+        12501 -> "Sign-in cancelled by user."
+        12502 -> "Sign-in already in progress."
+        else -> e.message ?: "Google Sign-In failed (code $statusCode)"
+      }
       webViewInstance?.evaluateJavascript(
-        "window.DriveSync.onNativeSignInError('${errMsg.replace("'", "\\'")}')",
+        "window.DriveSync.onNativeSignInError('${friendlyMsg.replace("'", "\\'")}')",
         null
       )
     }
