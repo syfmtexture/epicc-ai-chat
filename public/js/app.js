@@ -76,7 +76,7 @@
 
   // ─── Thinking Toggle & Dynamic Task-based Model Switcher ────────────────
   function getFriendlyModelName(modelValue) {
-    if (!modelValue) return 'EPICC';
+    if (!modelValue) return 'Epicc';
     const slashIdx = modelValue.indexOf('/');
     const modelName = slashIdx !== -1 ? modelValue.substring(slashIdx + 1) : modelValue;
 
@@ -838,7 +838,7 @@
     actionsDiv.querySelector('.share-btn').addEventListener('click', (e) => {
       if (navigator.share) {
         navigator.share({
-          title: 'EPICC AI Response',
+          title: 'Epicc AI Response',
           text: content
         }).catch(console.error);
       } else {
